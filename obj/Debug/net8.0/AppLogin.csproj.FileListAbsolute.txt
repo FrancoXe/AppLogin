@@ -168,4 +168,6 @@ C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\Ap
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\AppLogin.genruntimeconfig.cache
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\ref\AppLogin.dll
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\AppLogin.sourcelink.json
+C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\bin\Debug\net8.0\package-lock.json
+C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\bin\Debug\net8.0\package.json
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

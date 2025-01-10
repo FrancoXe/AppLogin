@@ -14,7 +14,6 @@ namespace AppLogin.Controllers
     {
         private readonly AppDBContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private const string ViewsPath = "~/Views/Reclamos/";
 
         public ReclamosController(AppDBContext context, IWebHostEnvironment webHostEnvironment)
         {
@@ -30,7 +29,7 @@ namespace AppLogin.Controllers
                 Subcategorias = await _context.Subcategorias.ToListAsync(),
                 Barrios = await _context.Barrios.ToListAsync()
             };
-            return View($"{ViewsPath}Nuevo.cshtml", model);
+            return View("Nuevo", model);
         }
 
         public async Task<IActionResult> MisReclamos()
@@ -45,7 +44,7 @@ namespace AppLogin.Controllers
                 .OrderByDescending(r => r.FechaCreacion)
                 .ToListAsync();
 
-            return View($"{ViewsPath}MisReclamos.cshtml", reclamos);
+            return View("MisReclamos", reclamos);
         }
 
         public async Task<IActionResult> Pendientes()
@@ -64,7 +63,7 @@ namespace AppLogin.Controllers
                 .OrderByDescending(r => r.FechaCreacion)
                 .ToListAsync();
 
-            return View($"{ViewsPath}Pendientes.cshtml", reclamos);
+            return View("Pendientes", reclamos);
         }
 
         [Authorize(Roles = "Administrador")]
@@ -77,13 +76,14 @@ namespace AppLogin.Controllers
                     IdUsuario = u.IdUsuario,
                     NombreCompleto = u.NombreCompleto,
                     Correo = u.Correo,
+                    IdRol = u.IdRol,
                     RolNombre = u.Rol.NombreRol,
                     UltimoAcceso = u.UltimoAcceso
                 })
                 .OrderBy(u => u.NombreCompleto)
                 .ToListAsync();
 
-            return View($"{ViewsPath}Usuarios.cshtml", usuarios);
+            return View("Usuarios", usuarios);
         }
 
         [HttpPost]
@@ -99,7 +99,7 @@ namespace AppLogin.Controllers
                     if (model.Archivo.Length > 5 * 1024 * 1024)
                     {
                         ModelState.AddModelError("Archivo", "El archivo no puede ser mayor a 5MB");
-                        return View($"{ViewsPath}Nuevo.cshtml", model);
+                        return View("Nuevo", model);
                     }
 
                     string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
@@ -133,7 +133,7 @@ namespace AppLogin.Controllers
                     model.Categorias = await _context.Categorias.ToListAsync();
                     model.Subcategorias = await _context.Subcategorias.ToListAsync();
                     model.Barrios = await _context.Barrios.ToListAsync();
-                    return View($"{ViewsPath}Nuevo.cshtml", model);
+                    return View("Nuevo", model);
                 }
 
                 var reclamo = new Reclamo
@@ -164,7 +164,7 @@ namespace AppLogin.Controllers
             model.Categorias = await _context.Categorias.ToListAsync();
             model.Subcategorias = await _context.Subcategorias.ToListAsync();
             model.Barrios = await _context.Barrios.ToListAsync();
-            return View($"{ViewsPath}Nuevo.cshtml", model);
+            return View("Nuevo", model);
         }
 
         [HttpGet]
@@ -216,6 +216,31 @@ namespace AppLogin.Controllers
             return Json(detalles);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Detalles(int id)
+        {
+            var reclamo = await _context.Reclamos
+                .Include(r => r.Usuario)
+                .Include(r => r.Categoria)
+                .Include(r => r.Subcategoria)
+                .Include(r => r.Barrio)
+                .FirstOrDefaultAsync(r => r.IdReclamo == id);
+
+            if (reclamo == null)
+            {
+                return NotFound();
+            }
+
+            // Verificar que el usuario actual sea el dueño del reclamo o un administrador
+            var userEmail = User.FindFirst("Correo")?.Value;
+            if (reclamo.Usuario.Correo != userEmail && !User.IsInRole("Administrador"))
+            {
+                return Forbid();
+            }
+
+            return View(reclamo);
+        }
+
         [HttpPost]
         [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
@@ -244,6 +269,124 @@ namespace AppLogin.Controllers
                 IdUsuario = reclamo.IdUsuario,
                 Titulo = $"Reclamo {model.Estado.ToLower()}",
                 Mensaje = $"Tu reclamo ha sido {model.Estado.ToLower()}.",
+                FechaCreacion = DateTime.UtcNow,
+                Leida = false
+            };
+
+            _context.Notificaciones.Add(notificacion);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Administrador")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GuardarUsuario(UsuarioGestionVM model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.IdUsuario == 0)
+                {
+                    // Nuevo usuario
+                    var usuarioExiste = await _context.Usuarios.AnyAsync(u => u.Correo == model.Correo);
+                    if (usuarioExiste)
+                    {
+                        ModelState.AddModelError("Correo", "Este correo ya está registrado");
+                        return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+                    }
+
+                    var rol = await _context.Roles.FindAsync(model.IdRol);
+                    if (rol == null)
+                    {
+                        ModelState.AddModelError("IdRol", "El rol seleccionado no existe");
+                        return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+                    }
+
+                    var usuario = new Usuario
+                    {
+                        NombreCompleto = model.NombreCompleto,
+                        Correo = model.Correo,
+                        Clave = "temporal123", // Contraseña temporal
+                        IdRol = model.IdRol,
+                        Rol = rol
+                    };
+
+                    _context.Usuarios.Add(usuario);
+                }
+                else
+                {
+                    // Editar usuario existente
+                    var usuario = await _context.Usuarios.FindAsync(model.IdUsuario);
+                    if (usuario == null)
+                    {
+                        return NotFound();
+                    }
+
+                    usuario.NombreCompleto = model.NombreCompleto;
+                    usuario.Correo = model.Correo;
+                    usuario.IdRol = model.IdRol;
+                }
+
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Administrador")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CambiarRol(int idUsuario, int idRol)
+        {
+            var usuario = await _context.Usuarios.FindAsync(idUsuario);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            usuario.IdRol = idRol;
+            await _context.SaveChangesAsync();
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Administrador")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarUsuario(int idUsuario)
+        {
+            var usuario = await _context.Usuarios.FindAsync(idUsuario);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            _context.Usuarios.Remove(usuario);
+            await _context.SaveChangesAsync();
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Administrador")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CambiarEstado(int idReclamo, string estado)
+        {
+            var reclamo = await _context.Reclamos.FindAsync(idReclamo);
+            if (reclamo == null)
+            {
+                return NotFound();
+            }
+
+            reclamo.Estado = estado;
+            await _context.SaveChangesAsync();
+
+            // Crear notificación para el usuario
+            var notificacion = new Notificacion
+            {
+                IdUsuario = reclamo.IdUsuario,
+                Titulo = $"Estado de reclamo actualizado",
+                Mensaje = $"El estado de tu reclamo #{reclamo.IdReclamo} ha sido actualizado a '{estado}'.",
                 FechaCreacion = DateTime.UtcNow,
                 Leida = false
             };
