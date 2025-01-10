@@ -1,0 +1,213 @@
+@model IEnumerable<AppLogin.Models.Reclamo>
+@{
+    ViewData["Title"] = "Reclamos Pendientes";
+}
+
+@section Styles {
+    <link href="~/lib/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Mensaje"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No hay reclamos pendientes.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>DNI</th>
+                        <th>Categoría</th>
+                        <th>Subcategoría</th>
+                        <th>Barrio</th>
+                        <th>Dirección</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var reclamo in Model)
+                    {
+                        <tr>
+                            <td>@reclamo.IdReclamo</td>
+                            <td>@reclamo.Usuario.NombreCompleto</td>
+                            <td>@reclamo.DNI</td>
+                            <td>@reclamo.Categoria.Nombre</td>
+                            <td>@reclamo.Subcategoria.Nombre</td>
+                            <td>@reclamo.Barrio.Nombre</td>
+                            <td>@reclamo.Direccion</td>
+                            <td>
+                                <span class="badge bg-warning">@reclamo.Estado</span>
+                            </td>
+                            <td>@reclamo.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                            data-reclamo-id="@reclamo.IdReclamo"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalDetalles">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<!-- Modal de Detalles -->
+<div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDetallesLabel">Detalles del Reclamo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detallesContenido">
+                    <!-- El contenido se cargará dinámicamente -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnAceptar">
+                    <i class="bi bi-check-lg"></i> Aceptar
+                </button>
+                <button type="button" class="btn btn-danger" id="btnRechazar">
+                    <i class="bi bi-x-lg"></i> Rechazar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let reclamoIdActual = null;
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            // Manejar el evento show.bs.modal
+            $('#modalDetalles').on('show.bs.modal', function (event) {
+                const button = $(event.relatedTarget);
+                const reclamoId = button.data('reclamo-id');
+                reclamoIdActual = reclamoId;
+                cargarDetallesReclamo(reclamoId);
+            });
+
+            async function cargarDetallesReclamo(id) {
+                try {
+                    const response = await fetch(`/Reclamos/ObtenerDetalles/${id}`);
+                    if (!response.ok) throw new Error('Error al obtener los detalles');
+                    
+                    const detalles = await response.json();
+                    mostrarDetallesEnModal(detalles);
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al cargar los detalles del reclamo');
+                }
+            }
+
+            function mostrarDetallesEnModal(detalles) {
+                const contenido = document.getElementById('detallesContenido');
+                contenido.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Información del Usuario</h6>
+                            <p><strong>Nombre:</strong> ${detalles.usuario.nombreCompleto}</p>
+                            <p><strong>DNI:</strong> ${detalles.dni}</p>
+                            <p><strong>Email:</strong> ${detalles.usuario.correo}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Información del Reclamo</h6>
+                            <p><strong>Categoría:</strong> ${detalles.categoria.nombre}</p>
+                            <p><strong>Subcategoría:</strong> ${detalles.subcategoria.nombre}</p>
+                            <p><strong>Fecha:</strong> ${new Date(detalles.fechaCreacion).toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6>Ubicación</h6>
+                            <p><strong>Barrio:</strong> ${detalles.barrio.nombre}</p>
+                            <p><strong>Dirección:</strong> ${detalles.direccion}</p>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6>Descripción</h6>
+                            <p>${detalles.descripcion}</p>
+                        </div>
+                    </div>
+                    ${detalles.imagenUrl ? `
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6>Imagen Adjunta</h6>
+                            <img src="${detalles.imagenUrl}" class="img-fluid" alt="Imagen del reclamo">
+                        </div>
+                    </div>` : ''}
+                `;
+            }
+
+            $('#btnAceptar').click(function() {
+                gestionarReclamo('Aceptado');
+            });
+
+            $('#btnRechazar').click(function() {
+                gestionarReclamo('Rechazado');
+            });
+
+            async function gestionarReclamo(estado) {
+                if (!reclamoIdActual) return;
+
+                try {
+                    const response = await fetch('/Reclamos/GestionarReclamo', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({
+                            idReclamo: reclamoIdActual,
+                            estado: estado
+                        })
+                    });
+
+                    if (!response.ok) throw new Error('Error al gestionar el reclamo');
+
+                    const result = await response.json();
+                    if (result.success) {
+                        // Cerrar el modal
+                        $('#modalDetalles').modal('hide');
+                        // Recargar la página para actualizar la lista
+                        window.location.reload();
+                    } else {
+                        alert(result.message || 'Error al gestionar el reclamo');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al gestionar el reclamo');
+                }
+            }
+        });
+    </script>
+}

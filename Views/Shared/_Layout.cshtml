@@ -1,61 +1,153 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es" class="@(ViewBag.Theme ?? "light")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AppLogin</title>
+    <title>@ViewData["Title"] - Sistema de Reclamos</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/AppLogin.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/AppLogin.styles.css" asp-append-version="true" />
-
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">AppLogin</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-logo">
+            <button class="btn-icon" id="toggleSidebar">
+                <i class="bi bi-list"></i>
+            </button>
+            <a href="@Url.Action("Index", "Home")" class="d-flex align-items-center gap-3">
+                <img src="~/img/logo.png" alt="Logo" />
+                <span class="d-none d-sm-inline">Municipalidad de Unquillo</span>
+            </a>
+        </div>
+        <div class="header-actions">
+            <!-- Switch modo oscuro -->
+            <div class="form-switch">
+                <input class="form-check-input" type="checkbox" id="darkModeSwitch" @(ViewBag.Theme == "dark" ? "checked" : "")>
+                <label class="form-check-label" for="darkModeSwitch">
+                    <i class="bi bi-moon-stars"></i>
+                </label>
+            </div>
+
+            <!-- Notificaciones -->
+            <div class="dropdown">
+                <button class="btn-icon position-relative" data-bs-toggle="dropdown">
+                    <i class="bi bi-bell"></i>
+                    @if (ViewBag.NotificationsCount > 0)
+                    {
+                        <span class="notification-badge">@ViewBag.NotificationsCount</span>
+                    }
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        @if(User.IsInRole("Administrador"))
+                <div class="dropdown-menu dropdown-menu-end">
+                    @if (ViewBag.Notifications?.Count > 0)
+                    {
+                        foreach (var notification in ViewBag.Notifications)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Gestion">Gestion</a>
-                            </li>
+                            <div class="dropdown-item">@notification</div>
                         }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Salir">Salir</a>
-                        </li>
-                    </ul>
+                    }
+                    else
+                    {
+                        <div class="dropdown-item text-muted">No hay notificaciones nuevas</div>
+                    }
                 </div>
             </div>
-        </nav>
+
+            <!-- Usuario -->
+            <div class="dropdown">
+                <button class="btn-icon" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <div class="dropdown-header">Mi cuenta</div>
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#helpDialog">
+                        <i class="bi bi-question-circle"></i>
+                        Ayuda
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="@Url.Action("Salir", "Home")">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Salir
+                    </a>
+                </div>
+            </div>
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav>
+            <a href="@Url.Action("Nuevo", "Reclamos")" class="nav-item">
+                <i class="bi bi-file-text"></i>
+                <span>Nuevo Reclamo</span>
+            </a>
+            <a href="@Url.Action("MisReclamos", "Reclamos")" class="nav-item">
+                <i class="bi bi-clock-history"></i>
+                <span>Mis Reclamos</span>
+            </a>
+            @if (User.IsInRole("Administrador"))
+            {
+                <a href="@Url.Action("Pendientes", "Reclamos")" class="nav-item">
+                    <i class="bi bi-clock"></i>
+                    <span>Pendientes</span>
+                </a>
+                <a href="@Url.Action("Usuarios", "Reclamos")" class="nav-item">
+                    <i class="bi bi-people"></i>
+                    <span>Usuarios</span>
+                </a>
+            }
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <!-- Modal de Ayuda -->
+    <div class="modal fade" id="helpDialog" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ayuda</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>¿Cómo crear un nuevo reclamo?</h6>
+                    <p>1. Haz clic en "Nuevo Reclamo" en el menú lateral</p>
+                    <p>2. Completa todos los campos requeridos</p>
+                    <p>3. Opcionalmente, puedes adjuntar una imagen o video</p>
+                    <p>4. Haz clic en "Crear Reclamo"</p>
+
+                    <h6>¿Cómo ver mis reclamos?</h6>
+                    <p>1. Haz clic en "Mis Reclamos" en el menú lateral</p>
+                    <p>2. Verás una lista de todos tus reclamos ordenados por fecha</p>
+
+                    <h6>¿Cómo funciona el estado de los reclamos?</h6>
+                    <p>- <strong>Pendiente:</strong> El reclamo ha sido creado pero aún no ha sido atendido</p>
+                    <p>- <strong>En proceso:</strong> El reclamo está siendo atendido</p>
+                    <p>- <strong>Resuelto:</strong> El reclamo ha sido solucionado</p>
+                    <p>- <strong>Cancelado:</strong> El reclamo ha sido cancelado</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - AppLogin - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/theme.js" asp-append-version="true"></script>
+    <script>
+        // Toggle sidebar
+        document.getElementById('toggleSidebar').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

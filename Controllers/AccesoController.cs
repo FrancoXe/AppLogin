@@ -1,98 +1,103 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-using AppLogin.Data;
+using Microsoft.AspNetCore.Mvc;
 using AppLogin.Models;
-using Microsoft.EntityFrameworkCore;
+using AppLogin.Data;
 using AppLogin.ViewModels;
-
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 
 namespace AppLogin.Controllers
 {
     public class AccesoController : Controller
     {
-        private readonly AppDBContext _appDbContext;
+        private readonly AppDBContext _context;
 
         public AccesoController(AppDBContext context)
         {
-            _appDbContext = context;
+            _context = context;
         }
 
-        [HttpGet]
+        public IActionResult Login()
+        {
+            return View(new LoginVM());
+        }
+
         public IActionResult Registrarse()
         {
-            return View();
+            return View(new RegistroUsuarioVM());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Registrarse(UsuarioVM model)
+        public async Task<IActionResult> Registrarse(RegistroUsuarioVM model)
         {
-            if (model.Clave != model.ConfirmarClave)
+            if (ModelState.IsValid)
             {
-                ViewData["Error"] = "Las contraseñas no coinciden.";
-                return View();
-            }
+                var usuarioExiste = await _context.Usuarios.AnyAsync(u => u.Correo == model.Correo);
+                if (usuarioExiste)
+                {
+                    ModelState.AddModelError("Correo", "Este correo ya está registrado");
+                    return View(model);
+                }
 
-                Usuario usuario = new Usuario
+                var rol = await _context.Roles.FirstOrDefaultAsync(r => r.IdRol == 1);
+                if (rol == null)
+                {
+                    ModelState.AddModelError("", "Error al asignar el rol");
+                    return View(model);
+                }
+
+                var usuario = new Usuario
                 {
                     NombreCompleto = model.NombreCompleto,
                     Correo = model.Correo,
                     Clave = model.Clave,
-                    IdRol = 1 // Rol predeterminado 
+                    IdRol = 1,
+                    Rol = rol
                 };
 
-            await _appDbContext.Usuarios.AddAsync(usuario);
-            await _appDbContext.SaveChangesAsync();
+                _context.Usuarios.Add(usuario);
+                await _context.SaveChangesAsync();
 
-
-            if(usuario.IdUsuario != 0)
-            {
-                return RedirectToAction("Login","Acceso");
+                return RedirectToAction("Login");
             }
 
-            ViewData["Error"] = "Error al registrar el usuario.";
-            return View();
-        }
-
-        [HttpGet]
-        public IActionResult Login()
-        {
-            if (User.Identity!.IsAuthenticated) return RedirectToAction("Index", "Home");
-            return View();
+            return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM model)
         {
-            Usuario? usuario_encontrado = await _appDbContext.Usuarios
-                .Include(u => u.Rol)
-                .Where(u => u.Correo == model.Correo && u.Clave == model.Clave).FirstOrDefaultAsync();
-            if (usuario_encontrado == null)
+            if (ModelState.IsValid)
             {
-                ViewData["Error"] = "No se encontraron coincidencias";
-                return View(model);
+                var usuario = await _context.Usuarios
+                    .Include(u => u.Rol)
+                    .FirstOrDefaultAsync(u => u.Correo == model.Correo && u.Clave == model.Clave);
+
+                if (usuario != null)
+                {
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, usuario.NombreCompleto),
+                        new Claim("Correo", usuario.Correo),
+                        new Claim(ClaimTypes.Role, usuario.Rol.NombreRol)
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                    usuario.UltimoAcceso = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Las credenciales son incorrectas");
+                }
             }
 
-
-            List<Claim> claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, usuario_encontrado.NombreCompleto),
-                new Claim(ClaimTypes.Role, usuario_encontrado.Rol.NombreRol)
-            };
-
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            AuthenticationProperties properties = new AuthenticationProperties
-            {
-                AllowRefresh = true,
-            };
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), properties);
-
-            return RedirectToAction("Index", "Home");
-
+            return View(model);
         }
-
     }
 }

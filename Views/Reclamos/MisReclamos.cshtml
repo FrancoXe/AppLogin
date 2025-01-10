@@ -1,0 +1,82 @@
+@model IEnumerable<AppLogin.Models.Reclamo>
+@{
+    ViewData["Title"] = "Mis Reclamos";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@ViewData["Title"]</h2>
+        <a asp-action="Nuevo" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Nuevo Reclamo
+        </a>
+    </div>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Mensaje"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            No tienes reclamos registrados. <a asp-action="Nuevo" class="alert-link">¡Crea uno nuevo!</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>DNI</th>
+                        <th>Categoría</th>
+                        <th>Subcategoría</th>
+                        <th>Barrio</th>
+                        <th>Dirección</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var reclamo in Model)
+                    {
+                        <tr>
+                            <td>@reclamo.IdReclamo</td>
+                            <td>@reclamo.DNI</td>
+                            <td>@reclamo.Categoria.Nombre</td>
+                            <td>@reclamo.Subcategoria.Nombre</td>
+                            <td>@reclamo.Barrio.Nombre</td>
+                            <td>@reclamo.Direccion</td>
+                            <td>
+                                <span class="badge @(reclamo.Estado switch {
+                                    "Pendiente" => "bg-warning",
+                                    "En Proceso" => "bg-info",
+                                    "Completado" => "bg-success",
+                                    "Cancelado" => "bg-danger",
+                                    _ => "bg-secondary"
+                                })">
+                                    @reclamo.Estado
+                                </span>
+                            </td>
+                            <td>@reclamo.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                            <td>
+                                <a asp-action="Detalles" asp-route-id="@reclamo.IdReclamo" 
+                                   class="btn btn-sm btn-outline-primary" 
+                                   data-bs-toggle="tooltip" 
+                                   data-bs-placement="top" 
+                                   title="Ver detalles del reclamo #@reclamo.IdReclamo">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

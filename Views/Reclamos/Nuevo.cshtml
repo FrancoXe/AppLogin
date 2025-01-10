@@ -1,0 +1,104 @@
+@model AppLogin.ViewModels.ReclamoVM
+@{
+    ViewData["Title"] = "Nuevo Reclamo";
+}
+
+<div class="container mt-4">
+    <h2>Nuevo Reclamo</h2>
+
+    <form asp-action="Crear" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group mb-3">
+            <label asp-for="DNI" class="control-label"></label>
+            <input asp-for="DNI" class="form-control" />
+            <span asp-validation-for="DNI" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="IdCategoria" class="control-label"></label>
+            <select asp-for="IdCategoria" class="form-control" id="categoriaSelect">
+                <option value="">Seleccione una categoría</option>
+                @foreach (var categoria in Model.Categorias)
+                {
+                    <option value="@categoria.IdCategoria">@categoria.Nombre</option>
+                }
+            </select>
+            <span asp-validation-for="IdCategoria" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="IdSubcategoria" class="control-label"></label>
+            <select asp-for="IdSubcategoria" class="form-control" id="subcategoriaSelect">
+                <option value="">Seleccione una subcategoría</option>
+                @foreach (var subcategoria in Model.Subcategorias)
+                {
+                    <option value="@subcategoria.IdSubcategoria" data-categoria="@subcategoria.IdCategoria">@subcategoria.Nombre</option>
+                }
+            </select>
+            <span asp-validation-for="IdSubcategoria" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="IdBarrio" class="control-label"></label>
+            <select asp-for="IdBarrio" class="form-control">
+                <option value="">Seleccione un barrio</option>
+                @foreach (var barrio in Model.Barrios)
+                {
+                    <option value="@barrio.IdBarrio">@barrio.Nombre</option>
+                }
+            </select>
+            <span asp-validation-for="IdBarrio" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Direccion" class="control-label"></label>
+            <input asp-for="Direccion" class="form-control" />
+            <span asp-validation-for="Direccion" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Descripcion" class="control-label"></label>
+            <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Descripcion" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Archivo" class="control-label"></label>
+            <input asp-for="Archivo" class="form-control" type="file" accept="image/*,video/*" />
+            <span asp-validation-for="Archivo" class="text-danger"></span>
+            <small class="form-text text-muted">Tamaño máximo: 5MB. Formatos permitidos: imágenes y videos.</small>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Crear Reclamo</button>
+            <a asp-action="MisReclamos" class="btn btn-secondary">Volver</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            // Ocultar todas las subcategorías al inicio
+            $("#subcategoriaSelect option:not(:first)").hide();
+
+            // Cuando se cambia la categoría
+            $("#categoriaSelect").change(function () {
+                var categoriaId = $(this).val();
+                
+                // Limpiar y mostrar el primer option de subcategorías
+                $("#subcategoriaSelect").val("");
+                $("#subcategoriaSelect option").hide();
+                $("#subcategoriaSelect option:first").show();
+
+                // Mostrar solo las subcategorías de la categoría seleccionada
+                if (categoriaId) {
+                    $("#subcategoriaSelect option[data-categoria='" + categoriaId + "']").show();
+                }
+            });
+        });
+    </script>
+}

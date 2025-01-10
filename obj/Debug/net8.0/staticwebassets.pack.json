@@ -1,10 +1,6 @@
 {
   "Files": [
     {
-      "Id": "C:\\Users\\Usuario\\OneDrive\\Escritorio\\TESIS\\AppLogin\\AppLogin\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\AppLogin.bundle.scp.css",
-      "PackagePath": "staticwebassets\\AppLogin.rr9meawyki.bundle.scp.css"
-    },
-    {
       "Id": "C:\\Users\\Usuario\\OneDrive\\Escritorio\\TESIS\\AppLogin\\AppLogin\\wwwroot\\css\\AppLogin.styles.css",
       "PackagePath": "staticwebassets\\css\\AppLogin.styles.css"
     },
@@ -17,8 +13,20 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "C:\\Users\\Usuario\\OneDrive\\Escritorio\\TESIS\\AppLogin\\AppLogin\\wwwroot\\images\\logo.png",
+      "PackagePath": "staticwebassets\\images\\logo.png"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\OneDrive\\Escritorio\\TESIS\\AppLogin\\AppLogin\\wwwroot\\js\\loader.js",
+      "PackagePath": "staticwebassets\\js\\loader.js"
+    },
+    {
       "Id": "C:\\Users\\Usuario\\OneDrive\\Escritorio\\TESIS\\AppLogin\\AppLogin\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\OneDrive\\Escritorio\\TESIS\\AppLogin\\AppLogin\\wwwroot\\js\\theme.js",
+      "PackagePath": "staticwebassets\\js\\theme.js"
     },
     {
       "Id": "C:\\Users\\Usuario\\OneDrive\\Escritorio\\TESIS\\AppLogin\\AppLogin\\wwwroot\\lib\\bootstrap\\LICENSE",

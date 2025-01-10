@@ -151,9 +151,7 @@ C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\Ap
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\AppLogin.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\AppLogin.RazorAssemblyInfo.cache
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\AppLogin.RazorAssemblyInfo.cs
-C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\scopedcss\bundle\AppLogin.styles.css
-C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\scopedcss\projectbundle\AppLogin.bundle.scp.css
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\staticwebassets.build.endpoints.json
@@ -163,10 +161,11 @@ C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\st
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.AppLogin.props
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.AppLogin.props
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\staticwebassets.pack.json
-C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\AppLogin.csproj.Up2Date
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\AppLogin.dll
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\refint\AppLogin.dll
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\AppLogin.pdb
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\AppLogin.genruntimeconfig.cache
 C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\ref\AppLogin.dll
+C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\AppLogin.sourcelink.json
+C:\Users\Usuario\OneDrive\Escritorio\TESIS\AppLogin\AppLogin\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

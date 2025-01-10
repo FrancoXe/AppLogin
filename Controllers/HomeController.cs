@@ -1,39 +1,108 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using AppLogin.Models;
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using AppLogin.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using AppLogin.Data;
 
 namespace AppLogin.Controllers
 {
-
     [Authorize]
     public class HomeController : Controller
     {
-
         private readonly ILogger<HomeController> _logger;
+        private readonly AppDBContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, AppDBContext context)
         {
             _logger = logger;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var userEmail = User.FindFirst("Correo")?.Value;
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Correo == userEmail);
+
+            if (usuario == null)
+            {
+                return RedirectToAction("Login", "Acceso");
+            }
+
+            // Obtener estadísticas para el dashboard
+            var viewModel = new DashboardVM
+            {
+                TotalReclamos = await _context.Reclamos.CountAsync(r => r.IdUsuario == usuario.IdUsuario),
+                ReclamosPendientes = await _context.Reclamos.CountAsync(r => r.IdUsuario == usuario.IdUsuario && r.Estado == "Pendiente"),
+                ReclamosAceptados = await _context.Reclamos.CountAsync(r => r.IdUsuario == usuario.IdUsuario && r.Estado == "Aceptado"),
+                ReclamosRechazados = await _context.Reclamos.CountAsync(r => r.IdUsuario == usuario.IdUsuario && r.Estado == "Rechazado"),
+                UltimosReclamos = await _context.Reclamos
+                    .Where(r => r.IdUsuario == usuario.IdUsuario)
+                    .OrderByDescending(r => r.FechaCreacion)
+                    .Take(5)
+                    .Include(r => r.Categoria)
+                    .Include(r => r.Subcategoria)
+                    .ToListAsync()
+            };
+
+            return View(viewModel);
         }
 
-        public IActionResult Privacy()
+        [HttpGet]
+        public async Task<IActionResult> ObtenerNotificaciones()
         {
-            return View();
+            var userEmail = User.FindFirst("Correo")?.Value;
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Correo == userEmail);
+
+            if (usuario == null)
+            {
+                return Json(new { success = false, message = "Usuario no encontrado" });
+            }
+
+            var notificaciones = await _context.Notificaciones
+                .Where(n => n.IdUsuario == usuario.IdUsuario && !n.Leida)
+                .OrderByDescending(n => n.FechaCreacion)
+                .Select(n => new
+                {
+                    n.IdNotificacion,
+                    n.Titulo,
+                    n.Mensaje,
+                    FechaCreacion = n.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                })
+                .ToListAsync();
+
+            return Json(new { success = true, notificaciones });
         }
 
-        [Authorize(Roles = "Administrador")]
-        public IActionResult Gestion()
+        [HttpPost]
+        public async Task<IActionResult> MarcarNotificacionLeida(int idNotificacion)
         {
-            return View();
+            var userEmail = User.FindFirst("Correo")?.Value;
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Correo == userEmail);
+
+            if (usuario == null)
+            {
+                return Json(new { success = false, message = "Usuario no encontrado" });
+            }
+
+            var notificacion = await _context.Notificaciones
+                .FirstOrDefaultAsync(n => n.IdNotificacion == idNotificacion && n.IdUsuario == usuario.IdUsuario);
+
+            if (notificacion == null)
+            {
+                return Json(new { success = false, message = "Notificación no encontrada" });
+            }
+
+            notificacion.Leida = true;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
