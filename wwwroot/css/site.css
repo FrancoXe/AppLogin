@@ -1,13 +1,18 @@
 :root {
     /* Light theme colors */
-    --bg-primary: #f8f9fa;
-    --bg-secondary: #ffffff;
-    --bg-sidebar: #f8f9fa;
-    --bg-header: #f8f9fa;
-    --text-primary: #2c3e50;
-    --text-secondary: #495057;
-    --border-color: rgba(0,0,0,0.1);
-    --hover-bg: rgba(0,0,0,0.05);
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-sidebar: #ffffff;
+    --bg-header: #ffffff;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --hover-bg: #e9ecef;
+    --accent-color: #FF8C00; /* Dark Orange */
+    --accent-color-darker: #E67E00; /* 10% darker for hover/active */
+    --accent-color-r: 255;
+    --accent-color-g: 140;
+    --accent-color-b: 0;
     --text-primary-filter: none;
 }
 
@@ -21,7 +26,25 @@
     --text-secondary: #adb5bd;
     --border-color: rgba(255,255,255,0.1);
     --hover-bg: rgba(255,255,255,0.1);
+
+    /* Accent color definitions for dark theme */
+    --accent-color: #FF8C00; /* Standard orange, same as light theme */
+    --accent-color-darker: #E67E00; /* Darker orange for hover/active, same as light theme */
+    --accent-color-r: 255;
+    --accent-color-g: 140;
+    --accent-color-b: 0;
     --text-primary-filter: invert(1);
+}
+
+/* Links */
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--accent-color-darker);
+    text-decoration: underline;
 }
 
 /* Base styles */
@@ -151,6 +174,89 @@ body {
     color: var(--text-primary);
 }
 
+/* Standard Buttons - General styling */
+.btn {
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-primary);
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+/* Primary Buttons */
+.btn-primary {
+    color: #ffffff;
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-primary:hover {
+    color: #ffffff;
+    background-color: var(--accent-color-darker);
+    border-color: var(--accent-color-darker);
+}
+
+.btn-primary:focus, .btn-primary.focus {
+    color: #ffffff;
+    background-color: var(--accent-color-darker);
+    border-color: var(--accent-color-darker);
+    box-shadow: 0 0 0 0.2rem rgba(var(--accent-color-r), var(--accent-color-g), var(--accent-color-b), 0.5);
+}
+
+.btn-primary:active, .btn-primary.active {
+    color: #ffffff;
+    background-color: var(--accent-color-darker);
+    border-color: var(--accent-color-darker);
+}
+
+/* Secondary / Outline Buttons - Styled to use accent color for outline */
+/* Assuming .btn-outline-secondary is the one to be styled with accent color based on Usuarios.cshtml */
+.btn-outline-secondary {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-outline-secondary:hover {
+    color: #ffffff;
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-outline-secondary:focus, .btn-outline-secondary.focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--accent-color-r), var(--accent-color-g), var(--accent-color-b), 0.5);
+}
+
+.btn-outline-secondary:active, .btn-outline-secondary.active {
+    color: #ffffff;
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+/* Danger Buttons - Ensure they remain distinct */
+.btn-danger {
+    color: #ffffff;
+    background-color: #dc3545; /* Standard Bootstrap danger color */
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    color: #ffffff;
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
 /* Switch para tema oscuro */
 .form-switch {
     padding-left: 2.5rem;
@@ -223,9 +329,15 @@ body {
 
 .form-control:focus {
     background-color: var(--bg-primary);
-    border-color: #2196F3;
+    border-color: var(--accent-color); /* Use accent color for focus */
     color: var(--text-primary);
-    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(var(--accent-color-r), var(--accent-color-g), var(--accent-color-b), 0.25); /* Accent color shadow */
+}
+
+/* Apply to .form-select as well if present and needs it */
+.form-select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--accent-color-r), var(--accent-color-g), var(--accent-color-b), 0.25);
 }
 
 .form-control::placeholder {
@@ -235,14 +347,29 @@ body {
 /* Tables */
 .table {
     color: var(--text-primary);
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.table th,
+.table td {
+    padding: 0.75rem; /* Increased padding */
+    vertical-align: top;
+    border-top: 1px solid var(--border-color);
 }
 
 .table thead th {
-    border-bottom-color: var(--border-color);
+    vertical-align: bottom;
+    border-bottom: 2px solid var(--border-color); /* Thicker bottom border for header */
+    background-color: var(--bg-secondary); /* Slightly different background for header */
+    color: var(--text-primary);
+    font-weight: 600; /* Bolder header text */
 }
 
-.table td, .table th {
-    border-top-color: var(--border-color);
+/* Ensure hover effect is subtle and uses variables */
+.table-hover tbody tr:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-primary);
 }
 
 /* Cards */
