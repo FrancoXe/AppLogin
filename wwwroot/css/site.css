@@ -34,6 +34,15 @@
     --accent-color-g: 140;
     --accent-color-b: 0;
     --text-primary-filter: invert(1);
+
+    /* Bootstrap table variable overrides for dark theme */
+    --bs-table-color: var(--text-primary);
+    --bs-table-bg: var(--bg-primary);
+    --bs-table-striped-bg: var(--bg-secondary);
+    --bs-table-striped-color: var(--text-primary);
+    --bs-table-hover-bg: var(--hover-bg); /* Optional: if we want to use our hover-bg for table hover */
+    --bs-table-hover-color: var(--text-primary); /* Optional: if we want to use our text-primary for table hover */
+    --bs-table-border-color: var(--border-color); /* Ensure table borders also use our variable */
 }
 
 /* Links */
@@ -386,6 +395,53 @@ body {
 .card-footer {
     background-color: var(--bg-primary);
     border-top-color: var(--border-color);
+}
+
+/* Modal Styling */
+.modal-content {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color); /* Explicit border for better separation */
+}
+
+.modal-header {
+    background-color: var(--bg-secondary); /* Slight variation for header */
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header .modal-title { /* Ensure title also uses primary text color */
+    color: var(--text-primary);
+}
+
+.modal-body {
+    color: var(--text-primary); /* Default text color for modal body */
+}
+
+.modal-body h6 {
+    color: var(--text-primary);
+    font-weight: 600; /* Bootstrap's default is often 500 for h6, making it bolder */
+}
+
+.modal-body p {
+    color: var(--text-secondary); /* Use secondary text for paragraphs for softer look */
+}
+
+.modal-body p strong { /* Ensure strong tags within paragraphs also use secondary text color if p does */
+    color: var(--text-secondary); /* Or var(--text-primary) if p uses primary */
+}
+
+.modal-footer {
+    background-color: var(--bg-secondary); /* Slight variation for footer */
+    color: var(--text-primary);
+    border-top: 1px solid var(--border-color);
+}
+
+/* Close button in modals for dark theme. Bootstrap 5's default SVG uses a `filter` for dark mode.
+   This rule ensures our text-primary-filter is applied if Bootstrap's own styling isn't sufficient or overridden.
+   The variable --text-primary-filter is defined as invert(1) in :root.dark */
+:root.dark .modal-header .btn-close {
+    filter: var(--text-primary-filter);
 }
 
 /* Notifications */
