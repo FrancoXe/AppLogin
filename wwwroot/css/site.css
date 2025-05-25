@@ -518,6 +518,48 @@ body {
     }
 }
 
+/* Estilos para el nuevo menú desplegable del Sidebar */
+
+/* Flecha indicadora */
+.sidebar .nav-item .sidebar-arrow {
+    transition: transform 0.2s ease-in-out; /* Transición suave para la rotación */
+}
+
+/* Cuando el enlace del desplegable está expandido (aria-expanded="true"), rota la flecha */
+/* Bootstrap añade la clase 'collapsed' al revés: está cuando está colapsado y la quita cuando se expande. */
+/* Así que apuntamos a cuando NO tiene la clase 'collapsed' */
+.sidebar .nav-item:not(.collapsed) .sidebar-arrow {
+    transform: rotate(180deg);
+}
+
+/* Estilos para los sub-ítems del menú */
+.sidebar .nav-sub-item {
+    padding-top: 0.5rem; /* Padding vertical más pequeño */
+    padding-bottom: 0.5rem;
+    padding-left: 1rem; /* El ps-4 en el HTML ya da un padding general, esto es adicional al icono si lo tuviera */
+                       /* O puedes ajustar el padding-left en la clase `list-unstyled ps-4` directamente en el HTML si prefieres. */
+                       /* Por ahora, el ps-4 en el div del submenú ya indenta todo el bloque. */
+                       /* Un nav-sub-item podría necesitar menos padding-left si el icono bi-dot se elimina o si se quiere más indentación del texto. */
+    font-size: 0.9rem; /* Tamaño de fuente ligeramente más pequeño */
+    color: var(--text-secondary); /* Color de texto secundario, un poco más tenue */
+}
+
+.sidebar .nav-sub-item:hover {
+    color: var(--text-primary); /* Al pasar el mouse, usa el color de texto primario */
+    background-color: var(--hover-bg); /* Mantener el fondo de hover consistente */
+}
+
+/* Ajuste para el contenedor del submenú si es necesario (el div con .collapse) */
+.sidebar .nav-item-dropdown .collapse {
+    /* El ps-4 ya indenta. Si se quieren líneas guía o algo más, se añadiría aquí */
+    /* margin-left: 1rem; /* Ejemplo si se quisiera indentar más allá del padding del ícono */
+}
+
+/* Asegurar que el nav-item que es un toggle no tenga estilos extraños cuando está activo/foco */
+.sidebar .nav-item[data-bs-toggle="collapse"]:focus {
+    /* box-shadow: none; /* Ejemplo si Bootstrap añade un box-shadow no deseado */
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar {
