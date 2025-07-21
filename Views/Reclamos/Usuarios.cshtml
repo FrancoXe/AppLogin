@@ -6,7 +6,7 @@
 <div class="container-fluid p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">@ViewData["Title"]</h1>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal">
+        <button class="btn btn-primary">
             <i class="bi bi-plus-lg"></i>
             Nuevo Usuario
         </button>
@@ -55,31 +55,13 @@
                                 </td>
                                 <td>
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#userModal"
-                                                data-id="@usuario.IdUsuario"
-                                                data-nombre="@usuario.NombreCompleto"
-                                                data-correo="@usuario.Correo"
-                                                data-rol="@usuario.RolNombre"
-                                                title="Editar">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#rolModal"
-                                                data-id="@usuario.IdUsuario"
-                                                data-nombre="@usuario.NombreCompleto"
-                                                data-rol="@usuario.RolNombre"
-                                                title="Cambiar Rol">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" title="Cambiar Rol">
                                             <i class="bi bi-arrow-repeat"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#deleteModal"
-                                                data-id="@usuario.IdUsuario"
-                                                data-nombre="@usuario.NombreCompleto"
-                                                title="Eliminar">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
@@ -102,36 +84,35 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="userForm" asp-action="GuardarUsuario" method="post">
-                    <input type="hidden" id="idUsuario" name="IdUsuario" value="" />
+                <form id="userForm">
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre completo</label>
-                        <input type="text" class="form-control" id="nombre" name="NombreCompleto" required>
+                        <input type="text" class="form-control" id="nombre" required>
                     </div>
                     <div class="mb-3">
                         <label for="correo" class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control" id="correo" name="Correo" required>
+                        <input type="email" class="form-control" id="correo" required>
                     </div>
                     <div class="mb-3">
                         <label for="rol" class="form-label">Rol</label>
-                        <select class="form-select" id="rol" name="IdRol" required>
+                        <select class="form-select" id="rol" required>
                             <option value="">Seleccionar rol...</option>
-                            <option value="1">Usuario</option>
-                            <option value="2">Administrador</option>
+                            <option value="admin">Administrador</option>
+                            <option value="user">Usuario</option>
                         </select>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                    </div>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="userForm" class="btn btn-primary">Guardar</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal Cambiar Rol -->
-<div class="modal fade" id="rolModal" tabindex="-1">
+<div class="modal fade" id="changeRoleModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -139,43 +120,20 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="rolForm" asp-action="CambiarRol" method="post">
-                    <input type="hidden" id="idUsuarioRol" name="IdUsuario" value="" />
-                    <p>Cambiar rol de <strong id="nombreUsuarioRol"></strong></p>
+                <form id="changeRoleForm">
                     <div class="mb-3">
-                        <label for="nuevoRol" class="form-label">Nuevo Rol</label>
-                        <select class="form-select" id="nuevoRol" name="IdRol" required>
-                            <option value="1">Usuario</option>
-                            <option value="2">Administrador</option>
+                        <label for="newRole" class="form-label">Nuevo rol</label>
+                        <select class="form-select" id="newRole" required>
+                            <option value="">Seleccionar rol...</option>
+                            <option value="admin">Administrador</option>
+                            <option value="user">Usuario</option>
                         </select>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                    </div>
                 </form>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Eliminar -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Eliminar Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="deleteForm" asp-action="EliminarUsuario" method="post">
-                    <input type="hidden" id="idUsuarioEliminar" name="IdUsuario" value="" />
-                    <p>¿Está seguro que desea eliminar al usuario <strong id="nombreUsuarioEliminar"></strong>?</p>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                    </div>
-                </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="changeRoleForm" class="btn btn-primary">Guardar</button>
             </div>
         </div>
     </div>
@@ -183,42 +141,10 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            // Modal de edición
-            $('#userModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget);
-                var modal = $(this);
-                var id = button.data('id');
-                
-                if (id) {
-                    modal.find('.modal-title').text('Editar Usuario');
-                    modal.find('#idUsuario').val(id);
-                    modal.find('#nombre').val(button.data('nombre'));
-                    modal.find('#correo').val(button.data('correo'));
-                    modal.find('#rol').val(button.data('rol') === 'Administrador' ? '2' : '1');
-                } else {
-                    modal.find('.modal-title').text('Nuevo Usuario');
-                    modal.find('#userForm')[0].reset();
-                    modal.find('#idUsuario').val('');
-                }
-            });
-
-            // Modal de cambio de rol
-            $('#rolModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget);
-                var modal = $(this);
-                modal.find('#idUsuarioRol').val(button.data('id'));
-                modal.find('#nombreUsuarioRol').text(button.data('nombre'));
-                modal.find('#nuevoRol').val(button.data('rol') === 'Administrador' ? '2' : '1');
-            });
-
-            // Modal de eliminación
-            $('#deleteModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget);
-                var modal = $(this);
-                modal.find('#idUsuarioEliminar').val(button.data('id'));
-                modal.find('#nombreUsuarioEliminar').text(button.data('nombre'));
-            });
-        });
+        // Inicializar los tooltips de Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
     </script>
 }

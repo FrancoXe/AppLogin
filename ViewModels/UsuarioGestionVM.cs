@@ -22,13 +22,5 @@ namespace AppLogin.ViewModels
         [Display(Name = "Último Acceso")]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm}", NullDisplayText = "Nunca")]
         public DateTime? UltimoAcceso { get; set; }
-
-        [Required(ErrorMessage = "El rol es requerido")]
-        public int IdRol { get; set; }
-
-        public string ToRol()
-        {
-            return IdRol == 2 ? "Administrador" : "Usuario";
-        }
     }
 }

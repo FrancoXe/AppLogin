@@ -33,6 +33,7 @@ namespace AppLogin.Controllers
                 return RedirectToAction("Login", "Acceso");
             }
 
+            // Obtener estadísticas para el dashboard
             var viewModel = new DashboardVM
             {
                 TotalReclamos = await _context.Reclamos.CountAsync(r => r.IdUsuario == usuario.IdUsuario),
@@ -45,26 +46,8 @@ namespace AppLogin.Controllers
                     .Take(5)
                     .Include(r => r.Categoria)
                     .Include(r => r.Subcategoria)
-                    .ToListAsync(),
-                    
+                    .ToListAsync()
             };
-
-            // Si es administrador, cargar datos adicionales
-            if (usuario.IdRol == 1) // Asumiendo que 1 es el ID del rol Administrador
-            {
-                viewModel.TotalReclamosGlobal = await _context.Reclamos.CountAsync();
-                viewModel.ReclamosPendientesGlobal = await _context.Reclamos.CountAsync(r => r.Estado == "Pendiente");
-                viewModel.ReclamosAceptadosGlobal = await _context.Reclamos.CountAsync(r => r.Estado == "Aceptado");
-                viewModel.ReclamosRechazadosGlobal = await _context.Reclamos.CountAsync(r => r.Estado == "Rechazado");
-                viewModel.TotalUsuarios = await _context.Usuarios.CountAsync();
-                viewModel.UltimosReclamosGlobal = await _context.Reclamos
-                    .OrderByDescending(r => r.FechaCreacion)
-                    .Take(10)
-                    .Include(r => r.Usuario)
-                    .Include(r => r.Categoria)
-                    .Include(r => r.Subcategoria)
-                    .ToListAsync();
-            }
 
             return View(viewModel);
         }
